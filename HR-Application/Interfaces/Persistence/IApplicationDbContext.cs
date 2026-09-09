@@ -17,6 +17,8 @@ namespace HR_Application.Interfaces.Persistence
         DbSet<Attendance> Attendances { get; }
         DbSet<SalaryReport> SalaryReports { get; }
         DbSet<ApplicationUser> ApplicationUser { get; }
+        DbSet<ApplicationRole> ApplicationRoles { get; }
+
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
 }

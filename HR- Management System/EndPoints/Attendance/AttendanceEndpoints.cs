@@ -20,7 +20,12 @@ namespace HR__Management_System.EndPoints.Attendance
             {
                 var query = new GetAttendancesQuery(filter);
                 var result = await mediator.Send(query);
-                return Results.Ok(result);
+                return Results.Ok(new
+                {
+                    Success = true,
+               
+                    Data = result
+                });
             });
 
        

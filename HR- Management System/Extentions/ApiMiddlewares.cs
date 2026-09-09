@@ -7,32 +7,25 @@ namespace HR__Management_System.Extentions
     {
         public static WebApplication UseApiMiddelwares(this WebApplication app)
         {
-
             app.UseExceptionHandler();
 
-            // HTTPS Redirection
-            app.UseHttpsRedirection();
+            // ملحوظة: قم بإلغاء UseHttpsRedirection مؤقتاً إذا كنت تستخدم الدومين المؤقت http
+            // app.UseHttpsRedirection();
 
             app.UseCors("AllowAngularApp");
 
-            // Routing 
             app.UseRouting();
 
-            // Developer Tools / Scalar OpenAPI
-            if (app.Environment.IsDevelopment())
+            // ✅ تفعيل Scalar و OpenAPI على السيرفر في كل البيئات (Production & Development)
+            app.MapOpenApi();
+            app.MapScalarApiReference(options =>
             {
-                app.MapOpenApi();
-                app.MapScalarApiReference(options =>
-                {
-                    options.Title = "HRMS";
-                    options.Theme = ScalarTheme.Purple;
-                });
-            }
-           
-            // Authentication & Authorization 
+                options.Title = "HRMS";
+                options.Theme = ScalarTheme.Purple;
+            });
+
             app.UseAuthentication();
             app.UseAuthorization();
-
 
             return app;
         }

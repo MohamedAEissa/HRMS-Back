@@ -13,6 +13,7 @@ namespace HR_Application.Features.Attendance.DTOs
         public TimeSpan? CheckInTime { get; set; }
         public TimeSpan? CheckOutTime { get; set; }
         public AttendanceStatus Status { get; set; }
-        public string? Notes { get; set; }
+        
     }
 }
+ 

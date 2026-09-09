@@ -33,11 +33,11 @@ namespace HR_Application.Features.SalaryReports.Commands.CreateSalaryReport
 
          
             var settings = await _context.GeneralSettings.FirstOrDefaultAsync(cancellationToken);
-            decimal overtimeMultiplier = settings?.OvertimeHourRate > 0 ? settings.OvertimeHourRate : 1.5m;
-            decimal deductionMultiplier = settings?.DeductionHourRate > 0 ? settings.DeductionHourRate : 1.0m;
+            decimal overtimeMultiplier = settings.OvertimeHourRate ;
+            decimal deductionMultiplier = settings.DeductionHourRate ;
 
          
-            var weeklyDaysOff = (settings?.WeeklyDaysOff ?? $"{DayOfWeek.Friday},{DayOfWeek.Saturday}")
+            var weeklyDaysOff = (settings?.WeeklyDaysOff)
                 .Split(',', StringSplitOptions.RemoveEmptyEntries)
                 .Select(d => Enum.TryParse<DayOfWeek>(d.Trim(), true, out var day) ? day : (DayOfWeek?)null)
                 .Where(d => d.HasValue)

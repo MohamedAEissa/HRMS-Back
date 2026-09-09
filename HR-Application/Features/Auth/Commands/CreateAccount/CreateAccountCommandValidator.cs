@@ -38,10 +38,7 @@ namespace HR_Application.Features.Auth.Commands.CreateAccount
             RuleFor(x => x.Dto.ConfirmPassword)
                 .Equal(x => x.Dto.Password).WithMessage("Passwords do not match.");
 
-            RuleFor(x => x.Dto.Role)
-                .NotEmpty().WithMessage("Role is required.")
-                .Must(role => role == Roles.Admin || role == Roles.HR || role == Roles.Employee)
-                .WithMessage("Invalid role specified. Allowed roles are: Admin, HR, Employee.");
+           
         }
     }
 }

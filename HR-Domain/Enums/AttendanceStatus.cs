@@ -8,8 +8,8 @@ namespace HR_Domain.Enums
 {
     public enum AttendanceStatus
     {
-        Present,       
-        Absent,        
+        Absent,
+        Present,          
         late,
         WeeklyOff,     
         OfficialHoliday 

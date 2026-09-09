@@ -18,34 +18,50 @@ namespace HR_Application.Features.Attendance.Commands.CreateAttendance
 
         public async Task<Guid> Handle(CreateAttendanceCommand request, CancellationToken cancellationToken)
         {
-            var officialStartTime = new TimeSpan(8, 0, 0);
-            var officialEndTime = new TimeSpan(16, 0, 0);
+            var officialStartTime = new TimeSpan(8, 0, 0);   // 08:00 AM
+            var officialEndTime = new TimeSpan(16, 0, 0);    // 04:00 PM
 
             decimal deductionHours = 0;
             decimal overtimeHours = 0;
 
-           
-            if (request.Dto.Status == AttendanceStatus.Absent)
+        
+            if (request.Dto.Status == AttendanceStatus.Absent ||
+                request.Dto.Status == AttendanceStatus.OfficialHoliday ||
+                request.Dto.Status == AttendanceStatus.WeeklyOff)
             {
                 request.Dto.CheckInTime = null;
                 request.Dto.CheckOutTime = null;
             }
             else
             {
-               
+              
                 if (request.Dto.CheckInTime.HasValue && request.Dto.CheckInTime.Value > officialStartTime)
                 {
                     var delay = request.Dto.CheckInTime.Value - officialStartTime;
-                    deductionHours = (decimal)delay.TotalHours;
+                    deductionHours += (decimal)delay.TotalHours;
                 }
 
-             
-                if (request.Dto.CheckOutTime.HasValue && request.Dto.CheckOutTime.Value > officialEndTime)
+                
+                if (request.Dto.CheckOutTime.HasValue)
                 {
-                    var over = request.Dto.CheckOutTime.Value - officialEndTime;
-                    overtimeHours = (decimal)over.TotalHours;
+                   
+                    if (request.Dto.CheckOutTime.Value > officialEndTime)
+                    {
+                        var over = request.Dto.CheckOutTime.Value - officialEndTime;
+                        overtimeHours = (decimal)over.TotalHours;
+                    }
+                   
+                    else if (request.Dto.CheckOutTime.Value < officialEndTime)
+                    {
+                        var earlyLeave = officialEndTime - request.Dto.CheckOutTime.Value;
+                        deductionHours += (decimal)earlyLeave.TotalHours;
+                    }
                 }
             }
+
+            
+            deductionHours = Math.Round(deductionHours, 2);
+            overtimeHours = Math.Round(overtimeHours, 2);
 
             var attendance = new HR_Domain.Entities.Attendance
             {
@@ -54,8 +70,8 @@ namespace HR_Application.Features.Attendance.Commands.CreateAttendance
                 CheckInTime = request.Dto.CheckInTime,
                 CheckOutTime = request.Dto.CheckOutTime,
                 Status = request.Dto.Status,
-                DeductionHours = Math.Round(deductionHours, 2),
-                OvertimeHours = Math.Round(overtimeHours, 2)
+                DeductionHours = deductionHours,
+                OvertimeHours = overtimeHours
             };
 
             _context.Attendances.Add(attendance);

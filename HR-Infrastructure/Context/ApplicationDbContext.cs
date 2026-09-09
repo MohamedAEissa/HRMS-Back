@@ -56,5 +56,7 @@ namespace HR_Infrastructure.Context
         public DbSet<SalaryReport> SalaryReports => Set<SalaryReport>();
 
         public DbSet<ApplicationUser> ApplicationUser => Set<ApplicationUser>();
+        public DbSet<ApplicationRole> ApplicationRoles => Set<ApplicationRole>();
+
     }
 }
