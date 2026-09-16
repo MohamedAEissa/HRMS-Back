@@ -10,6 +10,7 @@ namespace HR_Application.Interfaces.Services
     {
         string? UserId { get; }
         string? UserName { get; }
+        string? UserEmail { get; }
         bool IsAuthenticated { get; }
         public bool IsInRole(string role);
     }

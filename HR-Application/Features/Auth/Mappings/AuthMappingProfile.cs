@@ -21,6 +21,9 @@ namespace HR_Application.Features.Auth.Mappings
             CreateMap<ApplicationUser, AuthResponseDto>()
                 .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName))
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email));
+
+            CreateMap<ApplicationUser, UserAccountDto>()
+                .ForMember(dest => dest.RoleName, opt => opt.Ignore());
         }
     }
 }

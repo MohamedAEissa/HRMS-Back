@@ -2,6 +2,7 @@
 using HR_Application.Features.SalaryReports.Commands.DeleteSalaryReport;
 using HR_Application.Features.SalaryReports.Commands.UpdateSalaryReport;
 using HR_Application.Features.SalaryReports.DTOs;
+using HR_Application.Features.SalaryReports.Queries.GetMySalaryReports;
 using HR_Application.Features.SalaryReports.Queries.GetSalaryReportById;
 using HR_Application.Features.SalaryReports.Queries.GetSalaryReports;
 using MediatR;
@@ -17,21 +18,30 @@ namespace HR_Management_System.Endpoints
         {
             var group = endpoints.MapGroup("api/salary-reports")
                 .WithTags("Salary Reports Management")
-                .RequireAuthorization(policy => policy.RequireRole("Admin", "HR"));
+                .RequireAuthorization();
 
-           
-            group.MapGet("/", async (Guid? employeeId, int? month, int? year, ISender mediator) =>
+
+            group.MapGet("/me", async ([AsParameters] salaryReportFilterDto filter, ISender mediator) =>
             {
-                var query = new GetSalaryReportsQuery(employeeId, month, year);
+                var query = new GetMySalaryReportsQuery(filter);
+                var result = await mediator.Send(query);
+                return Results.Ok(new { Success = true, Data = result });
+            })
+            .RequireAuthorization()
+            .Produces<List<SalaryReporResponsetDto>>(StatusCodes.Status200OK);
+
+            group.MapGet("/", async ([AsParameters] salaryReportFilterDto filter , ISender mediator) =>
+            {
+                var query = new GetSalaryReportsQuery(filter);
                 var result = await mediator.Send(query);
                 return Results.Ok(new
                 {
                     Success = true,
                     Data = result
                 });
-            });
+            }).RequireAuthorization(policy => policy.RequireRole("Admin", "HR"));
 
-            
+
             group.MapGet("/{id:guid}", async (Guid id, ISender mediator) =>
             {
                 var query = new GetSalaryReportByIdQuery(id);
@@ -41,28 +51,28 @@ namespace HR_Management_System.Endpoints
                     Success = true,
                     Data = result
                 }) : Results.NotFound();
-            });
+            }).RequireAuthorization(policy => policy.RequireRole("Admin", "HR"));
 
-           
+
             group.MapPost("/", async (RequestSalaryReportDto dto, ISender mediator) =>
             {
                 var result = await mediator.Send(new CreateSalaryReportCommand(dto));
                 return Results.Created($"/api/salary-reports/{result.Id}", new { Data = result, Message = "Salary report generated successfully." , Success = true });
-            });
+            }).RequireAuthorization(policy => policy.RequireRole("Admin", "HR"));
 
-        
+
             group.MapPut("/{id:guid}", async (Guid id, RequestSalaryReportDto dto, ISender mediator) =>
             {
                 var result = await mediator.Send(new UpdateSalaryReportCommand(id, dto));
                 return Results.Ok(new { Data = result, Message = "Salary report updated successfully.", Success = true });
-            });
+            }).RequireAuthorization(policy => policy.RequireRole("Admin", "HR"));
 
-          
+
             group.MapDelete("/{id:guid}", async (Guid id, ISender mediator) =>
             {
                 var result = await mediator.Send(new DeleteSalaryReportCommand(id));
                 return result ? Results.Ok(new { Message = "Salary report deleted successfully." , Success = true }) : Results.NotFound();
-            });
+            }).RequireAuthorization(policy => policy.RequireRole("Admin", "HR"));
         }
     }
 }

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace HR_Application.Features.Attendance.Queries.GetAttendances
@@ -24,39 +24,67 @@ namespace HR_Application.Features.Attendance.Queries.GetAttendances
             var query = _context.Attendances
                 .Include(a => a.Employee)
                 .ThenInclude(e => e.Department)
+                .AsNoTracking()
                 .AsQueryable();
 
             var filter = request.Filter;
 
-            if (filter.EmployeeId.HasValue)
+            if (filter != null)
             {
-                query = query.Where(a => a.EmployeeId == filter.EmployeeId.Value);
-            }
-            if (!string.IsNullOrWhiteSpace(filter.DepartmentName))
-            {
-                query = query.Where(a => a.Employee.Department != null &&
-                                         a.Employee.Department.Name.ToLower().Contains(filter.DepartmentName.ToLower()));
-            }
+                
+                if (filter.EmployeeId.HasValue)
+                {
+                    query = query.Where(a => a.EmployeeId == filter.EmployeeId.Value);
+                }
 
-            if (!string.IsNullOrWhiteSpace(filter.EmployeeName))
-            {
-                query = query.Where(a => a.Employee.FullName != null &&
-                                         a.Employee.FullName.ToLower().Contains(filter.EmployeeName.ToLower()));
-            }
+                
+                if (!string.IsNullOrWhiteSpace(filter.EmployeeName))
+                {
+                    query = query.Where(a => a.Employee.FullName != null &&
+                                             a.Employee.FullName.ToLower().Contains(filter.EmployeeName.ToLower()));
+                }
 
-            if (filter.DepartmentId.HasValue)
-            {
-                query = query.Where(a => a.Employee.DepartmentId == filter.DepartmentId.Value);
-            }
+               
+                if (filter.DepartmentId.HasValue)
+                {
+                    query = query.Where(a => a.Employee.DepartmentId == filter.DepartmentId.Value);
+                }
 
-            
-            if (filter.FromDate.HasValue)
-            {
-                query = query.Where(a => a.Date >= filter.FromDate.Value.Date);
-            }
-            if (filter.ToDate.HasValue)
-            {
-                query = query.Where(a => a.Date <= filter.ToDate.Value.Date);
+              
+                if (!string.IsNullOrWhiteSpace(filter.DepartmentName))
+                {
+                    query = query.Where(a => a.Employee.Department != null &&
+                                             a.Employee.Department.Name.ToLower().Contains(filter.DepartmentName.ToLower()));
+                }
+
+                
+                if (filter.Month.HasValue && filter.Month > 0)
+                {
+                    query = query.Where(a => a.Date.Month == filter.Month.Value);
+                }
+
+               
+                if (filter.Year.HasValue && filter.Year > 0)
+                {
+                    query = query.Where(a => a.Date.Year == filter.Year.Value);
+                }
+
+               
+                if (filter.Date.HasValue)
+                {
+                    query = query.Where(a => a.Date.Date == filter.Date.Value.Date);
+                }
+
+               
+                if (filter.FromDate.HasValue)
+                {
+                    query = query.Where(a => a.Date >= filter.FromDate.Value.Date);
+                }
+
+                if (filter.ToDate.HasValue)
+                {
+                    query = query.Where(a => a.Date <= filter.ToDate.Value.Date);
+                }
             }
 
             return await query
@@ -71,12 +99,10 @@ namespace HR_Application.Features.Attendance.Queries.GetAttendances
                     CheckOutTime = a.CheckOutTime,
                     OvertimeHours = a.OvertimeHours,
                     DeductionHours = a.DeductionHours,
-                    Status = a.Status,
-                    
+                    Status = a.Status
                 })
                 .OrderByDescending(a => a.Date)
                 .ToListAsync(cancellationToken);
-
         }
     }
 }

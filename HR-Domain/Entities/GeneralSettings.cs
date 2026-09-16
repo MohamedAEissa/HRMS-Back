@@ -7,8 +7,7 @@ namespace HR_Domain.Entities
     {
         public decimal OvertimeHourRate { get; set; }
         public decimal DeductionHourRate { get; set; }
-
-        
-        public string WeeklyDaysOff { get; set; } = $"{DayOfWeek.Friday},{DayOfWeek.Saturday}";
+        public string WeeklyDaysOff { get; set; }
+         //= $"{DayOfWeek.Friday},{DayOfWeek.Saturday}";
     }
 }

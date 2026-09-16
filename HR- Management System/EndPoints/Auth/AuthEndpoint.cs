@@ -4,6 +4,7 @@ using HR_Application.Features.Auth.Commands.CreateAccount;
 using HR_Application.Features.Auth.Commands.LoginAccount;
 using HR_Application.Features.Auth.Commands.Logout;
 using HR_Application.Features.Auth.Commands.RefreshToken;
+using HR_Application.Features.Auth.Commands.UpdateAccount;
 using HR_Application.Features.Auth.DTOs;
 using MediatR;
 using System.IdentityModel.Tokens.Jwt;
@@ -101,6 +102,26 @@ namespace HR__Management_System.EndPoints.Auth
             .Produces(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status400BadRequest)
             .Produces(StatusCodes.Status401Unauthorized);
+
+
+            authGroup.MapPut("/accounts/{id:guid}", async (Guid id, UpdateUserAccountDto dto, ISender mediator) =>
+            {
+                var command = new UpdateUserAccountCommand(id, dto);
+                var result = await mediator.Send(command);
+
+                return Results.Ok(new
+                {
+                    Success = true,
+                    Message = "Account updated successfully.",
+                    Data = result
+                });
+            })
+            .WithName("UpdateAccount")
+            .RequireAuthorization()
+            .Produces<UserAccountDto>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status404NotFound);
         }
     }
 }
