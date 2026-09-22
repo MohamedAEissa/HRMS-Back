@@ -1,7 +1,9 @@
 ﻿using HR_Application.Features.Attendance.Commands.CreateAttendance;
 using HR_Application.Features.Attendance.Commands.DeleteAttendance;
+using HR_Application.Features.Attendance.Commands.ImportAttendanceFromExcel;
 using HR_Application.Features.Attendance.Commands.UpdateAttendance;
 using HR_Application.Features.Attendance.DTOs;
+using HR_Application.Features.Attendance.DTOs.ExcelDto;
 using HR_Application.Features.Attendance.Queries.GetAttendances;
 using HR_Application.Features.Attendance.Queries.GetMyAttendance;
 using MediatR;
@@ -10,6 +12,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace HR__Management_System.EndPoints.Attendance
 {
@@ -51,6 +54,20 @@ namespace HR__Management_System.EndPoints.Attendance
                 return Results.Created($"/api/attendances/{id}", new { Id = id, Message = "Attendance recorded successfully." });
             })
             .RequireAuthorization(policy => policy.RequireRole("Admin", "HR"));
+
+            // POST: api/attendances/import-excel
+            group.MapPost("/import-excel", async (IFormFile file, ISender mediator, CancellationToken cancellationToken) =>
+            {
+                var dto = new ImportAttendanceExcelDto { File = file };
+                var command = new ImportAttendanceExcelCommand(dto);
+                var result = await mediator.Send(command, cancellationToken);
+
+                return Results.Ok(new { Success = true, Data = result });
+            })
+            .RequireAuthorization(policy => policy.RequireRole("Admin", "HR"))
+            .DisableAntiforgery()
+            .Accepts<IFormFile>("multipart/form-data")
+            .Produces<ImportAttendanceResultDto>(StatusCodes.Status200OK);
 
             // PUT: api/attendances/{id}
             group.MapPut("/{id:guid}", async (Guid id, UpdateAttendanceDto dto, ISender mediator) =>

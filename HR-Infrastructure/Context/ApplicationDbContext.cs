@@ -5,24 +5,25 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace HR_Infrastructure.Context
 {
-    public class ApplicationDbContext:IdentityDbContext<ApplicationUser, ApplicationRole, Guid>, IApplicationDbContext
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>, IApplicationDbContext
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
 
+          
             builder.Entity<Employee>()
                 .HasOne(e => e.User)
                 .WithOne(u => u.Employee)
                 .HasForeignKey<Employee>(e => e.UserId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<Employee>()
                 .HasOne(e => e.Department)
@@ -41,11 +42,6 @@ namespace HR_Infrastructure.Context
                 .WithMany()
                 .HasForeignKey(s => s.EmployeeId)
                 .OnDelete(DeleteBehavior.Cascade);
-            builder.Entity<ApplicationUser>()
-                .HasOne(u => u.Employee)
-                .WithOne(e => e.User)
-                .HasForeignKey<Employee>(e => e.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
         }
 
         public DbSet<Employee> Employees => Set<Employee>();
@@ -57,6 +53,5 @@ namespace HR_Infrastructure.Context
 
         public DbSet<ApplicationUser> ApplicationUser => Set<ApplicationUser>();
         public DbSet<ApplicationRole> ApplicationRoles => Set<ApplicationRole>();
-
     }
 }

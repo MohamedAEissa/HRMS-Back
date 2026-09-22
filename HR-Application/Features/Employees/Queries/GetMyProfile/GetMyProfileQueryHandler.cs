@@ -3,6 +3,10 @@ using HR_Application.Interfaces.Persistence;
 using HR_Application.Interfaces.Services;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace HR_Application.Features.Employees.Queries.GetMyProfile
 {
@@ -26,7 +30,6 @@ namespace HR_Application.Features.Employees.Queries.GetMyProfile
                 return null;
             }
 
-            
             var employeeDto = await (from emp in _context.Employees.AsNoTracking()
                                      where emp.Email == userEmail
                                      join usr in _context.ApplicationUser.AsNoTracking() on emp.Email equals usr.Email into userGroup
@@ -37,10 +40,19 @@ namespace HR_Application.Features.Employees.Queries.GetMyProfile
                                      select new EmployeeResponseDto
                                      {
                                          Id = emp.Id,
+                                         Code = emp.Code,
                                          FullName = string.IsNullOrEmpty(emp.FullName) ? (usr != null ? usr.FullName : string.Empty) : emp.FullName,
+                                         NationalId = emp.NationalId,
+                                         Address = emp.Address,
                                          Email = emp.Email,
                                          Phone = emp.Phone,
+                                         Nationality = emp.Nationality,
+                                         Gender = emp.Gender,
+                                         BirthDate = emp.BirthDate,
                                          Salary = emp.Salary,
+                                         ContractDate = emp.ContractDate,
+                                         CheckInTime = emp.CheckInTime,
+                                         CheckOutTime = emp.CheckOutTime,
                                          DepartmentId = emp.DepartmentId,
                                          DepartmentName = emp.Department != null ? emp.Department.Name : string.Empty,
 

@@ -13,13 +13,11 @@ namespace HR_Application.Features.Employees.Mappings
     {
         public EmployeeMappingProfile()
         {
-            
-            CreateMap<Employee, EmployeeResponseDto>()
-             .ForMember(dest => dest.DepartmentName, opt => opt.MapFrom(src => src.Department != null ? src.Department.Name : string.Empty));
-
 
             CreateMap<CreateEmployeeDto, Employee>();
             CreateMap<UpdateEmployeeDto, Employee>();
+            CreateMap<Employee, EmployeeResponseDto>()
+                .ForMember(dest => dest.DepartmentName, opt => opt.MapFrom(src => src.Department != null ? src.Department.Name : string.Empty));
 
         }
     }
